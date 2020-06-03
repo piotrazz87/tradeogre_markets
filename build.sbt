@@ -5,11 +5,14 @@ scalaVersion := "2.13.2"
 //core
 lazy val http4sVersion = "0.21.3"
 lazy val catsVersion="2.1.1"
+lazy val pureConfigVersion="0.12.3"
+
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
   "org.http4s" %% "http4s-blaze-server" % http4sVersion,
   "org.http4s" %% "http4s-blaze-client" % http4sVersion,
-  "org.typelevel" %% "cats-core" % catsVersion
+  "org.typelevel" %% "cats-core" % catsVersion,
+  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion
 )
 
 //JSON encoder/decoder
@@ -20,7 +23,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic-extras" % circeVersion,
   "io.circe" %% "circe-literal" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion,
-
 )
 
 //DB

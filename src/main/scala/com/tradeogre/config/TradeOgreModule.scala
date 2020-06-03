@@ -1,19 +1,16 @@
 package com.tradeogre.config
 
 import cats.effect.{ConcurrentEffect, ContextShift, Resource}
-import com.tradeogre.client.{HttpClientProperties, TradeOgreClient}
-import com.tradeogre.dsl.{DBConfig, DBConnection, TradeOgreRepository}
+import com.tradeogre.client.TradeOgreClient
+import com.tradeogre.dsl.{DBConnection, TradeOgreRepository}
 import com.tradeogre.service.TradeOgreService
+import pureconfig.ConfigSource
 
 class TradeOgreModule[F[_]: ConcurrentEffect: ContextShift] {
-  private val dbConfig = DBConfig(
-    driver = "org.postgresql.Driver",
-    url = "jdbc:postgresql://localhost:5432/questionnaire_system",
-    user = "postgres_user",
-    password = "postgres_user"
-  )
+  import pureconfig.generic.auto._
+  private val clientConfig = ConfigSource.default.at("client").loadOrThrow[HttpClientProperties]
+  private val dbConfig = ConfigSource.default.at("database").loadOrThrow[DatabaseConfig]
 
-  private val clientConfig = HttpClientProperties("https://tradeogre.com/api/v1")
   implicit private val dbConnection: DBConnection[F] = DBConnection[F](dbConfig)
 
   lazy val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)

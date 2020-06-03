@@ -1,7 +1,6 @@
 package com.tradeogre
 
 import cats.effect.{ExitCode, IO, IOApp}
-import com.tradeogre.client.response.MarketInfoResponse
 import com.tradeogre.config.TradeOgreModule
 
 object Main extends IOApp {
@@ -13,8 +12,6 @@ object Main extends IOApp {
       _ <- IO.unit
       results <- module.repository.findByPair()
       _ <- IO(println(results.toString()))
-      markets: Map[String, MarketInfoResponse] <- module.service.fetchInfo()
-      _ <- IO(println(markets))
     } yield ExitCode.Success
   }
 }
