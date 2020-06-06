@@ -17,16 +17,8 @@ class TradeOgreRepository[F[_]: Sync](implicit connection: DBConnection[F]) exte
     logger.info("Persisting markets")
     val values =
       fr"VALUES (${market.from}, ${market.to}, current_timestamp, ${info.currentPrice}, ${info.volume}, ${info.startingPrice}, ${info.low},${info.high},${info.buyOffer},${info.sellOffer})"
-    Try((TradeOgreRepository.InsertFragment ++ values).update.run .transact(connection.transactor)) match {
-      case Success(z)  =>
-        val sql: F[Either[SQLException, Int]] =z.attemptSql
-        for{
-        res<-sql
-        _=  logger.info(res.toString)
-        }yield ()
-      case Failure(ex) => logger.info(ex.toString)
-    }
-    Sync[F].pure(10)
+    (TradeOgreRepository.InsertFragment ++ values).update.run .transact(connection.transactor)
+  Sync[F].pure(10)
   }
 
   def findByPair(): F[List[String]] =

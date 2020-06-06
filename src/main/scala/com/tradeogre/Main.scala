@@ -14,8 +14,7 @@ object Main extends IOApp with LazyLogging {
       _ <- IO.pure(logger.info("Analyzing markets from TO"))
       markets <- module.service.fetchMarkets()
       _ <- IO.pure(logger.info(markets.toString()))
-      _ = markets.map { case (pair, info) => module.repository.save(pair, info).unsafeRunSync() }
-      _ <- IO(markets)
+      _ = markets.map { case (pair, info) => module.repository.save(pair, info) }
     } yield ExitCode.Success
   }
 }
