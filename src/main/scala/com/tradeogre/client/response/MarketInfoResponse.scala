@@ -9,3 +9,5 @@ final case class MarketInfoResponse(
     bid: BigDecimal,
     ask: BigDecimal
 )
+
+

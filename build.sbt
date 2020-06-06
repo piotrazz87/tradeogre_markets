@@ -6,13 +6,16 @@ scalaVersion := "2.13.2"
 lazy val http4sVersion = "0.21.3"
 lazy val catsVersion="2.1.1"
 lazy val pureConfigVersion="0.12.3"
+lazy val logging="1.2.3"
 
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
   "org.http4s" %% "http4s-blaze-server" % http4sVersion,
   "org.http4s" %% "http4s-blaze-client" % http4sVersion,
   "org.typelevel" %% "cats-core" % catsVersion,
-  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion
+  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+   "ch.qos.logback" % "logback-classic" % logging
 )
 
 //JSON encoder/decoder
