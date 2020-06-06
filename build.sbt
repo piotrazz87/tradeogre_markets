@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % catsVersion,
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-   "ch.qos.logback" % "logback-classic" % logging
+   "ch.qos.logback" % "logback-classic" % logging,
+  "org.scalatest" %% "scalatest" % "3.1.1" % Test,
 )
 
 //JSON encoder/decoder

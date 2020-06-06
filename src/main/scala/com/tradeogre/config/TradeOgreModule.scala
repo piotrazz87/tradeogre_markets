@@ -1,13 +1,13 @@
 package com.tradeogre.config
 
-import cats.effect.{ConcurrentEffect, ContextShift, Resource}
+import cats.effect.{ConcurrentEffect, ContextShift, Resource, Sync}
 import com.tradeogre.client.TradeOgreClient
 import com.tradeogre.dsl.{DBConnection, TradeOgreRepository}
 import com.tradeogre.service.TradeOgreService
 import com.typesafe.scalalogging.LazyLogging
 import pureconfig.ConfigSource
 
-class TradeOgreModule[F[_]: ConcurrentEffect: ContextShift] extends LazyLogging{
+class TradeOgreModule[F[+ _]: ConcurrentEffect: ContextShift] extends LazyLogging {
   import pureconfig.generic.auto._
 
   logger.info("Loading tradeogre client config")
@@ -20,9 +20,9 @@ class TradeOgreModule[F[_]: ConcurrentEffect: ContextShift] extends LazyLogging{
   logger.info("Creating components")
   lazy val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)
   lazy val repository: TradeOgreRepository[F] = TradeOgreRepository[F]
-  lazy val service: TradeOgreService[F] = TradeOgreService[F](client)
+  lazy val service: TradeOgreService[F] = TradeOgreService[F](client, repository)
 }
 
 object TradeOgreModule {
-  def apply[F[_]: ConcurrentEffect: ContextShift]() = new TradeOgreModule[F]
+  def apply[F[+ _]: ConcurrentEffect: ContextShift]() = new TradeOgreModule[F]
 }

@@ -1,50 +1,37 @@
 package com.tradeogre.dsl
 
-import java.sql.SQLException
-
 import cats.effect.Sync
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 import com.typesafe.scalalogging.LazyLogging
+import doobie.`enum`.SqlState
 import doobie.implicits._
-import doobie.util.fragment.Fragment
-import cats.implicits._
 
-import scala.util.{Failure, Success, Try}
+class TradeOgreRepository[F[+ _]: Sync](implicit connection: DBConnection[F]) extends Repository[F] with LazyLogging {
 
-class TradeOgreRepository[F[_]: Sync](implicit connection: DBConnection[F]) extends LazyLogging {
+  def save(market: MarketPair, info: MarketInfoIn24Hours): F[Either[DBError, Unit]] = {
+    logger.info(s"Trying to insert market info for market pair: $market")
 
-  def save(market: MarketPair, info: MarketInfoIn24Hours): F[Int] = {
-    logger.info("Persisting markets")
-    val values =
-      fr"VALUES (${market.from}, ${market.to}, current_timestamp, ${info.currentPrice}, ${info.volume}, ${info.startingPrice}, ${info.low},${info.high},${info.buyOffer},${info.sellOffer})"
-    (TradeOgreRepository.InsertFragment ++ values).update.run .transact(connection.transactor)
-  Sync[F].pure(10)
+    val query =
+      sql"INSERT INTO trade_ogre.market (base_currency,target_currency, created_date,current_price,volume,start_price,low,high,buy_offer,sell_offer) " ++
+        sql"VALUES (${market.from}, ${market.to}, current_timestamp, ${info.currentPrice}, ${info.volume}, ${info.startingPrice}, ${info.low},${info.high},${info.buyOffer},${info.sellOffer})"
+
+    query.update
+      .withUniqueGeneratedKeys("id")
+      .attemptSomeSqlState {
+        case exception: SqlState =>
+          logger.error("Something is wrong with query", exception.toString)
+          SyntaxError(exception.value)
+      }
+      .transact(connection.transactor)
   }
 
-  def findByPair(): F[List[String]] =
-    sql"select name from trade_ogre.markets"
-      .query[String]
+  def findByPair(marketPair: MarketPair): F[List[MarketInfoIn24Hours]] =
+    sql"SELECT * FROM trade_ogre.market WHERE target_currency=${marketPair.to} "
+      .query[MarketInfoIn24Hours]
       .to[List]
       .transact(connection.transactor)
 }
 
 object TradeOgreRepository {
-  private val (columns, columnsWithComma) = {
-    val columns = Set(
-      "id",
-      "from",
-      "to",
-      "created_date",
-      "current_price",
-      "24h_volume",
-      "24h_start_price",
-      "24h_low",
-      "24h_high",
-      "buy_offer",
-      "sell_offer"
-    )
-    (columns, columns.mkString(","))
-  }
-  val InsertFragment: Fragment = fr"INSERT INTO market (" ++ Fragment.const(columnsWithComma) ++ fr")"
-  def apply[F[_]: Sync](implicit xa: DBConnection[F]) = new TradeOgreRepository[F]()
+  def apply[F[+ _]: Sync](implicit xa: DBConnection[F]) = new TradeOgreRepository[F]()
 }

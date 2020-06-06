@@ -11,10 +11,9 @@ object Main extends IOApp with LazyLogging {
     val module = TradeOgreModule[IO]()
 
     for {
-      _ <- IO.pure(logger.info("Analyzing markets from TO"))
-      markets <- module.service.fetchMarkets()
-      _ <- IO.pure(logger.info(markets.toString()))
-      _ = markets.map { case (pair, info) => module.repository.save(pair, info) }
+      _ <- IO(logger.info("Analyzing markets from TO"))
+      markets <- module.service.fetchBTCMarkets()
+      _ = module.service.persistMarkets(markets).unsafeRunSync()
     } yield ExitCode.Success
   }
 }
