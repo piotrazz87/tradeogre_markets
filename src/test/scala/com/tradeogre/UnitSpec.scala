@@ -1,4 +1,4 @@
-package com.tradeogre.service
+package com.tradeogre
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

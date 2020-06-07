@@ -2,7 +2,7 @@ package com.tradeogre.client
 
 import cats.effect.{ConcurrentEffect, Resource, Sync}
 import cats.implicits._
-import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse, TickerResponse, TradeHistoryResponse}
+import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
 import com.tradeogre.config.HttpClientProperties
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.generic.auto._
@@ -30,25 +30,11 @@ class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: HttpClientPrope
       result <- httpClient.expectOr[OrderBookResponse](request)(handleErrorResponse("orders"))
     } yield result
 
-  def getTradeHistory(market: Market): F[Seq[TradeHistoryResponse]] =
-    for {
-      uri <- Uri.fromString(s"${config.endpoint}/history/$market").liftTo[F]
-      request = Request[F](method = GET, uri = uri)
-      result <- httpClient.expectOr[Seq[TradeHistoryResponse]](request)(handleErrorResponse("history"))
-    } yield result
-
-  def getTicker(market: Market): F[TickerResponse] =
-    for {
-      uri <- Uri.fromString(s"${config.endpoint}/ticker/$market").liftTo[F]
-      request = Request[F](method = GET, uri = uri)
-      result <- httpClient.expectOr[TickerResponse](request)(handleErrorResponse("ticker"))
-    } yield result
-
   private def handleErrorResponse(request: String): Response[F] => F[Throwable] = { err =>
     {
       logger.error(s"Error occurred during fetching $request")
       (err.status match {
-        case Status.NotFound => NotFound(s"Requested address is not available :$err")
+        case Status.NotFound => ClientAddressNotFound(s"Requested address is not available :$err")
         case _               => new RuntimeException(s"Something went wrong. Failed HTTP response: $err")
       }).raiseError[F, Throwable]
     }

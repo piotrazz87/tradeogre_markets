@@ -1,5 +1,6 @@
 package com.tradeogre.service
 
+import com.tradeogre.UnitSpec
 import com.tradeogre.client.response.MarketInfoResponse
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 
