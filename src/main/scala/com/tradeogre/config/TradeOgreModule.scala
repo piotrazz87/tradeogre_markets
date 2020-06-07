@@ -5,27 +5,29 @@ import com.tradeogre.client.TradeOgreClient
 import com.tradeogre.dsl.TradeOgreRepository
 import com.tradeogre.service.TradeOgreService
 import com.typesafe.scalalogging.LazyLogging
-import doobie.util.transactor.Transactor
-import doobie.util.transactor.Transactor.Aux
 import pureconfig.ConfigSource
-import pureconfig.generic.auto._
+import pureconfig.error.ConfigReaderFailures
+
 
 class TradeOgreModule[F[+ _]: ConcurrentEffect: ContextShift] extends LazyLogging {
 
-  logger.info("Loading tradeogre client config")
-  private val clientConfig = ConfigSource.default.at("client").loadOrThrow[HttpClientProperties]
-
-  logger.info("Loading database config")
-  private val dbConfig = ConfigSource.default.at("database").loadOrThrow[DatabaseConfig]
-  private val transactor: Aux[F, Unit] = {
-    val DatabaseConfig(driver, url, user, password) = dbConfig
-    Transactor.fromDriverManager[F](driver, url, user, password)
-  }
+  logger.info("Loading configs")
+  val (clientConfig: HttpClientConfig, dbConfig: DatabaseConfig) =
+    loadConfigs().fold(ex => logger.error("There is problem with loading configs", ex.toList.mkString("\n")), identity)
+  private val transactor = DatabaseConfig.dbTransactor(dbConfig)
 
   logger.info("Creating components")
-  lazy val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)
-  lazy val repository: TradeOgreRepository[F] = TradeOgreRepository[F](transactor)
-  lazy val service: TradeOgreService[F] = TradeOgreService[F](client, repository)
+  val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)
+  val repository: TradeOgreRepository[F] = TradeOgreRepository[F](transactor)
+  val service: TradeOgreService[F] = TradeOgreService[F](client, repository)
+
+  private def loadConfigs(): Either[ConfigReaderFailures, (HttpClientConfig, DatabaseConfig)] = {
+    import pureconfig.generic.auto._
+    for {
+      clientConfig <- ConfigSource.default.at("client").load[HttpClientConfig]
+      dbConfig <- ConfigSource.default.at("database").load[DatabaseConfig]
+    } yield (clientConfig, dbConfig)
+  }
 }
 
 object TradeOgreModule {

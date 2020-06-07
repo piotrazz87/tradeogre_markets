@@ -10,6 +10,7 @@ lazy val scalaLoggingVersion="3.9.2"
 lazy val scalaTestVersion="3.1.1"
 lazy val circeVersion = "0.13.0"
 lazy val doobieVersion = "0.9.0"
+lazy val flywayVersion = "6.3.1"
 
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
@@ -31,8 +32,9 @@ libraryDependencies ++= Seq(
   "org.tpolecat" %% "doobie-core" % doobieVersion,
   "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat" %% "doobie-h2" % doobieVersion,
+  "org.flywaydb" % "flyway-core" % flywayVersion,
 
-  "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+  "org.scalatest" %% "scalatest" % scalaTestVersion % Test
 )
 
 scalacOptions ++= Seq(
