@@ -2,8 +2,8 @@ package com.tradeogre.service
 
 import cats.effect.{IO, Resource}
 import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
-import com.tradeogre.client.{Market, ClientAddressNotFound, TradeOgreClientTrait}
-import com.tradeogre.{UnitSpec, domain}
+import com.tradeogre.client.{ClientAddressNotFound, Market, TradeOgreClientTrait}
+import com.tradeogre.{domain, UnitSpec}
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 import com.tradeogre.dsl.{DBError, Repository, SyntaxError}
 import com.tradeogre.service.TradeOgreServiceTest.{client, failingClient, failingRepository, repository}
@@ -28,7 +28,9 @@ class TradeOgreServiceTest extends UnitSpec {
 
     When("fetching btc markets")
     Then("error should be raised")
-    service.fetchBTCMarkets().attempt.unsafeRunSync() shouldEqual Left(ClientAddressNotFound("http://tr.com not exists"))
+    service.fetchBTCMarkets().attempt.unsafeRunSync() shouldEqual Left(
+      ClientAddressNotFound("http://tr.com not exists")
+    )
   }
 
   it should "persist markets" in {
@@ -42,7 +44,7 @@ class TradeOgreServiceTest extends UnitSpec {
 
     When("persisting markets")
     Then("no error should be raised")
-    service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual (Right(List(Right(), Right())))
+    service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual (Right(List(Right, Right)))
   }
 
   it should "fail while persisting markets" in {
@@ -89,14 +91,8 @@ private object TradeOgreServiceTest {
   private val repository: Repository[IO] = new Repository[IO] {
     override def save(market: domain.MarketPair, info: MarketInfoIn24Hours): IO[Either[DBError, Unit]] =
       IO.pure(Right(()))
-
-    override def findByPair(marketPair: domain.MarketPair): IO[List[MarketInfoIn24Hours]] = ???
   }
 
-  private val failingRepository: Repository[IO] = new Repository[IO] {
-    override def save(market: domain.MarketPair, info: MarketInfoIn24Hours): IO[Either[DBError, Unit]] =
-      IO.pure(Left((SyntaxError("4281"))))
-
-    override def findByPair(marketPair: domain.MarketPair): IO[List[MarketInfoIn24Hours]] = ???
-  }
+  private val failingRepository: Repository[IO] = (_: domain.MarketPair, _: MarketInfoIn24Hours) =>
+    IO.pure(Left(SyntaxError("4281")))
 }

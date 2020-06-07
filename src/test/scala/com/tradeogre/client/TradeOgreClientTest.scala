@@ -54,6 +54,7 @@ class TradeOgreClientTest extends UnitSpec {
     )
   }
 }
+
 private object TradeOgreClientTest {
 
   private val MockedHttpClient = {

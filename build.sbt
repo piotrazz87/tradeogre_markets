@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
    "ch.qos.logback" % "logback-classic" % logging,
+
   "org.scalatest" %% "scalatest" % "3.1.1" % Test,
 )
 
@@ -33,7 +34,8 @@ libraryDependencies ++= Seq(
 lazy val doobieVersion = "0.9.0"
 libraryDependencies ++= Seq(
   "org.tpolecat" %% "doobie-core" % doobieVersion,
-  "org.tpolecat" %% "doobie-postgres" % doobieVersion
+  "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+  "org.tpolecat" %% "doobie-h2" % doobieVersion,
 )
 
 scalacOptions ++= Seq(
