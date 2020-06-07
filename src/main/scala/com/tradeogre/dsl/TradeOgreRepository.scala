@@ -21,7 +21,7 @@ class TradeOgreRepository[F[+ _]: Sync](transactor: Transactor[F]) extends Repos
       .attemptSomeSqlState {
         case exception: SqlState =>
           logger.error(s"Something is wrong with query of market ${market.asString}", exception.toString)
-          SyntaxError(s"${exception.value}, for pair ${market.asString}")
+          DBSyntaxError(s"${exception.value}, for pair ${market.asString}")
       }
       .transact(transactor)
   }

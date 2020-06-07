@@ -5,7 +5,7 @@ import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
 import com.tradeogre.client.{ClientAddressNotFound, Market, ExchangeClient}
 import com.tradeogre.{domain, UnitSpec}
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
-import com.tradeogre.dsl.{DBError, Repository, SyntaxError}
+import com.tradeogre.dsl.{DBError, Repository, DBSyntaxError}
 import com.tradeogre.service.TradeOgreServiceTest.{client, failingClient, failingRepository, repository}
 
 class TradeOgreServiceTest extends UnitSpec {
@@ -59,8 +59,8 @@ class TradeOgreServiceTest extends UnitSpec {
     Then("raise syntax error")
     service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual Right(
       List(
-        Left(SyntaxError("4281")),
-        Left(SyntaxError("4281"))
+        Left(DBSyntaxError("4281")),
+        Left(DBSyntaxError("4281"))
       )
     )
   }
@@ -94,5 +94,5 @@ private object TradeOgreServiceTest {
   }
 
   private val failingRepository: Repository[IO] = (_: domain.MarketPair, _: MarketInfoIn24Hours) =>
-    IO.pure(Left(SyntaxError("4281")))
+    IO.pure(Left(DBSyntaxError("4281")))
 }
