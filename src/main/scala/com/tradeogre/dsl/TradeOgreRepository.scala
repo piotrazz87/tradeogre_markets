@@ -20,8 +20,8 @@ class TradeOgreRepository[F[+ _]: Sync](transactor: Transactor[F]) extends Repos
       .withUniqueGeneratedKeys("id")
       .attemptSomeSqlState {
         case exception: SqlState =>
-          logger.error("Something is wrong with query", exception.toString)
-          SyntaxError(exception.value)
+          logger.error(s"Something is wrong with query of market ${market.asString}", exception.toString)
+          SyntaxError(s"${exception.value}, for pair ${market.asString}")
       }
       .transact(transactor)
   }

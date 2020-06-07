@@ -2,13 +2,13 @@ package com.tradeogre.service
 
 import cats.effect.{Resource, Sync}
 import cats.implicits._
-import com.tradeogre.client.{TradeOgreClient, TradeOgreClientTrait}
+import com.tradeogre.client.{ExchangeClient, TradeOgreClient}
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 import com.tradeogre.dsl.{DBError, Repository, TradeOgreRepository}
 import com.tradeogre.service.TradeOgreService.MainMarketToAnalyze
 import com.typesafe.scalalogging.StrictLogging
 
-class TradeOgreService[F[+ _]: Sync](client: Resource[F, TradeOgreClientTrait[F]], repository: Repository[F])
+class TradeOgreService[F[+ _]: Sync](client: Resource[F, ExchangeClient[F]], repository: Repository[F])
     extends TradingService[F]
     with StrictLogging {
 
@@ -22,7 +22,13 @@ class TradeOgreService[F[+ _]: Sync](client: Resource[F, TradeOgreClientTrait[F]
     } yield btcMarkets
 
   def persistMarkets(markets: Map[MarketPair, MarketInfoIn24Hours]): F[List[Either[DBError, Unit]]] =
-    markets.toList.traverse { case (pair, info) => repository.save(pair, info) }
+    markets.toList.traverse {
+      case (pair, info) =>
+        for {
+          persistResult <- repository.save(pair, info)
+          _ = persistResult.handleError(error => logger.error(error.message()))
+        } yield persistResult
+    }
 }
 
 object TradeOgreService {

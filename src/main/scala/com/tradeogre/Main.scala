@@ -13,7 +13,9 @@ object Main extends IOApp with LazyLogging {
     for {
       _ <- IO(logger.info("Analyzing markets from TO"))
       markets <- module.service.fetchBTCMarkets()
-      _ = module.service.persistMarkets(markets).unsafeRunSync()
+      _ <- IO(logger.info(s"Fetched ${markets.size} markets of BTC, trying to persist..."))
+      persistResult = module.service.persistMarkets(markets).unsafeRunSync()
+      _ <- IO(logger.info(s"Persisted ${persistResult.count(_.isRight)} markets"))
     } yield ExitCode.Success
   }
 }

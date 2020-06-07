@@ -4,6 +4,7 @@
    
 Used technologies :
  ----
+- Scala - 2.13 version
 - Http4s - client
 - Cats-effect - maintaining effects 
 - Doobie - database layer

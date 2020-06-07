@@ -2,7 +2,7 @@ package com.tradeogre.service
 
 import cats.effect.{IO, Resource}
 import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
-import com.tradeogre.client.{ClientAddressNotFound, Market, TradeOgreClientTrait}
+import com.tradeogre.client.{ClientAddressNotFound, Market, ExchangeClient}
 import com.tradeogre.{domain, UnitSpec}
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 import com.tradeogre.dsl.{DBError, Repository, SyntaxError}
@@ -44,7 +44,7 @@ class TradeOgreServiceTest extends UnitSpec {
 
     When("persisting markets")
     Then("no error should be raised")
-    service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual (Right(List(Right, Right)))
+    service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual Right(List(Right(), Right()))
   }
 
   it should "fail while persisting markets" in {
@@ -68,7 +68,7 @@ class TradeOgreServiceTest extends UnitSpec {
 
 private object TradeOgreServiceTest {
 
-  private val client: TradeOgreClientTrait[IO] = new TradeOgreClientTrait[IO]() {
+  private val client: ExchangeClient[IO] = new ExchangeClient[IO]() {
     override def fetchAllMarkets(): IO[Map[Market, MarketInfoResponse]] =
       IO.pure(
         Map(
@@ -80,7 +80,7 @@ private object TradeOgreServiceTest {
     override def getOrderBook(market: Market): IO[OrderBookResponse] =
       IO.pure(OrderBookResponse(Map.empty, Map.empty, success = true))
   }
-  private val failingClient: TradeOgreClientTrait[IO] = new TradeOgreClientTrait[IO]() {
+  private val failingClient: ExchangeClient[IO] = new ExchangeClient[IO]() {
     override def fetchAllMarkets(): IO[Map[Market, MarketInfoResponse]] =
       IO.raiseError(ClientAddressNotFound("http://tr.com not exists"))
 

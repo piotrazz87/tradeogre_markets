@@ -13,15 +13,15 @@ import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.{Status, _}
 
 class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: HttpClientProperties)
-    extends TradeOgreClientTrait[F]
+    extends ExchangeClient[F]
     with StrictLogging {
-
+  
   def fetchAllMarkets(): F[Map[Market, MarketInfoResponse]] =
     for {
       uri <- Uri.fromString(s"${config.endpoint}/markets").liftTo[F]
-      request = Request[F](method = GET, uri = uri)
+      requestDescription = Request[F](method = GET, uri = uri)
       _ <- Sync[F].delay(logger.info("Fetching all markets"))
-      result <- httpClient.expectOr[Seq[Map[Market, MarketInfoResponse]]](request)(handleErrorResponse("markets"))
+      result <- httpClient.expectOr[Seq[Map[Market, MarketInfoResponse]]](requestDescription)(handleErrorResponse("markets"))
       markets <- Sync[F].pure(result.flatten.toMap)
     } yield markets
 
