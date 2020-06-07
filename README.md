@@ -1,6 +1,6 @@
 # Tradeogre Markets
     Initial project for collecting data from Trade Ogre crypto assets exchange.
-    The goal of this project was to implement it in pure functional way with Final Tagless tehnique.
+    The goal of this project was to make proof of concept of program implemented in pure functional way with Final Tagless tehnique.
    
 Used technologies :
  ----
