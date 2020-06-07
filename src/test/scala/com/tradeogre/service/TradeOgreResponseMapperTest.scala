@@ -5,7 +5,6 @@ import com.tradeogre.client.response.MarketInfoResponse
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 
 class TradeOgreResponseMapperTest extends UnitSpec {
-//TODO:what if pair doesn't have - ???
   "mapper" should "determine pair" in {
     TradeOgreResponseMapper.determineMarketPair("BTC-GRFT") shouldEqual (MarketPair("BTC", "GRFT"))
   }
