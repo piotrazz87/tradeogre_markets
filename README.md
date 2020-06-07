@@ -1,1 +1,14 @@
-# tradeogre_markets
+# Tradeogre Markets
+    Initial project for collecting data from Trade Ogre crypto assets exchange.
+    The goal of this project was to implement it in pure functional way with Final Tagless tehnique.
+   
+Used technologies :
+ ----
+- Http4s - client
+- Cats-effect - maintaining effects 
+- Doobie - database layer
+- PostgreSQL JDB driver
+- Circe - JSON codecs
+- pureconfig - configuration loading
+- ScalaTest - for testing
+

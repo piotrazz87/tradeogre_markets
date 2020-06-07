@@ -12,7 +12,9 @@ import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.{Status, _}
 
-class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: HttpClientProperties) extends TradeOgreClientTrait[F] with StrictLogging {
+class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: HttpClientProperties)
+    extends TradeOgreClientTrait[F]
+    with StrictLogging {
 
   def fetchAllMarkets(): F[Map[Market, MarketInfoResponse]] =
     for {

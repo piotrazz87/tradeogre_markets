@@ -13,7 +13,7 @@ object TradeOgreResponseMapper {
     MarketInfoIn24Hours(initialprice, price, volume, high, low, bid, ask)
   }
 
-  private[service]  def determineMarketPair(market: String): MarketPair = {
+  private[service] def determineMarketPair(market: String): MarketPair = {
     val Array(from, to) = market.split("-")
     MarketPair(from, to)
   }
