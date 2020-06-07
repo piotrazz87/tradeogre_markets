@@ -6,7 +6,7 @@ import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 
 class TradeOgreResponseMapperTest extends UnitSpec {
   "mapper" should "determine pair" in {
-    TradeOgreResponseMapper.determineMarketPair("BTC-GRFT") shouldEqual (MarketPair("BTC", "GRFT"))
+    TradeOgreResponseMapper.determineMarketPair("BTC-GRFT") shouldEqual MarketPair("BTC", "GRFT")
   }
 
   "mapper" should "map market info" in {
