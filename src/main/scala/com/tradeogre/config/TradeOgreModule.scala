@@ -6,21 +6,18 @@ import com.tradeogre.dsl.TradeOgreRepository
 import com.tradeogre.service.TradeOgreService
 import com.typesafe.scalalogging.LazyLogging
 import doobie.util.transactor.Transactor
-import doobie.util.transactor.Transactor.Aux
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 
 class TradeOgreModule[F[+ _]: ConcurrentEffect: ContextShift] extends LazyLogging {
 
   logger.info("Loading tradeogre client config")
-  private val clientConfig = ConfigSource.default.at("client").loadOrThrow[HttpClientProperties]
+  private val clientConfig = ConfigSource.default.at("client").loadOrThrow[TradeOgreClientConfig]
 
   logger.info("Loading database config")
   private val dbConfig = ConfigSource.default.at("database").loadOrThrow[DatabaseConfig]
-  private val transactor: Aux[F, Unit] = {
-    val DatabaseConfig(driver, url, user, password) = dbConfig
-    Transactor.fromDriverManager[F](driver, url, user, password)
-  }
+  private val transactor =
+    Transactor.fromDriverManager[F](dbConfig.driver, dbConfig.url, dbConfig.user, dbConfig.password)
 
   logger.info("Creating components")
   lazy val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)
