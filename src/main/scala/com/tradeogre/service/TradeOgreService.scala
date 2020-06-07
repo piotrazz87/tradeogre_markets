@@ -2,7 +2,7 @@ package com.tradeogre.service
 
 import cats.effect.{Resource, Sync}
 import cats.implicits._
-import com.tradeogre.client.{TradeOgreClientTrait, TradeOgreClient}
+import com.tradeogre.client.{TradeOgreClient, TradeOgreClientTrait}
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
 import com.tradeogre.dsl.{DBError, Repository, TradeOgreRepository}
 import com.tradeogre.service.TradeOgreService.MainMarketToAnalyze
@@ -22,9 +22,7 @@ class TradeOgreService[F[+ _]: Sync](client: Resource[F, TradeOgreClientTrait[F]
     } yield btcMarkets
 
   def persistMarkets(markets: Map[MarketPair, MarketInfoIn24Hours]): F[List[Either[DBError, Unit]]] =
-    markets.toList.traverse({ case (pair, info) => repository.save(pair, info) })
-
-  def calculateArbitrage(): Unit = {}
+    markets.toList.traverse { case (pair, info) => repository.save(pair, info) }
 }
 
 object TradeOgreService {
