@@ -13,11 +13,11 @@ object DatabaseConfig {
     Transactor.fromDriverManager[F](dbConfig.driver, dbConfig.url, dbConfig.user, dbConfig.password)
 
   def initializeDb[F[_]: Sync](dbConfig: DatabaseConfig): F[Unit] =
-    Sync[F].delay {
+    Sync[F].delay(
       Flyway
         .configure()
         .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
         .load()
         .migrate()
-    }
+    )
 }

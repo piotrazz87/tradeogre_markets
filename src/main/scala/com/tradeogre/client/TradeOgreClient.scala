@@ -3,7 +3,7 @@ package com.tradeogre.client
 import cats.effect.{ConcurrentEffect, Resource, Sync}
 import cats.implicits._
 import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
-import com.tradeogre.config.HttpClientConfig
+import com.tradeogre.config.TradeOgreClientConfig
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.generic.auto._
 import org.http4s.Method.GET
@@ -12,7 +12,7 @@ import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.{Status, _}
 
-class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: HttpClientConfig)
+class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: TradeOgreClientConfig)
     extends ExchangeClient[F]
     with StrictLogging {
 
@@ -45,7 +45,7 @@ class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: HttpClientConfi
 object TradeOgreClient {
 
   def apply[F[_]: Sync: ConcurrentEffect](
-      config: HttpClientConfig
+      config: TradeOgreClientConfig
   ): Resource[F, TradeOgreClient[F]] = {
     import scala.concurrent.ExecutionContext.Implicits.global
     for {

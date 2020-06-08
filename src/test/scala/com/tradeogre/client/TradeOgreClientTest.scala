@@ -4,7 +4,7 @@ import cats.effect.IO
 import com.tradeogre.UnitSpec
 import com.tradeogre.client.TradeOgreClientTest.MockedHttpClient
 import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
-import com.tradeogre.config.HttpClientConfig
+import com.tradeogre.config.TradeOgreClientConfig
 import org.http4s.Method.GET
 import org.http4s.Status.NotFound
 import org.http4s.client.Client
@@ -13,8 +13,8 @@ import org.http4s.{HttpApp, Request, Response, Status, _}
 import scala.concurrent.duration._
 
 class TradeOgreClientTest extends UnitSpec {
-  private val properClientProperties = HttpClientConfig("http://tradeogre/api", 10 seconds)
-  private val wrongClientProperties = HttpClientConfig("http://tr", 10 seconds)
+  private val properClientProperties = TradeOgreClientConfig("http://tradeogre/api", 10 seconds)
+  private val wrongClientProperties = TradeOgreClientConfig("http://tr", 10 seconds)
 
   it should "fetch markets" in {
     val tradeOgreClient = new TradeOgreClient[IO](MockedHttpClient, properClientProperties)
