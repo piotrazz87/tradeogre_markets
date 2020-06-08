@@ -8,8 +8,15 @@ Used technologies :
 - Http4s - client
 - Cats-effect - maintaining effects 
 - Doobie - database layer
+- Flyway - database migrations
 - PostgreSQL JDB driver
 - Circe - JSON codecs
 - pureconfig - configuration loading
 - ScalaTest - for testing
+
+Running:
+ ----
+- Create database with properties from application.conf
+- sbt run 
+
 
