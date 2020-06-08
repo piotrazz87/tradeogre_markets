@@ -1,4 +1,4 @@
-create table trade_ogre.market(
+create table market(
 	id serial not null
 		constraint market_pkey
 			primary key,

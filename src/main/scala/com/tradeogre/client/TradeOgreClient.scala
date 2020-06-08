@@ -15,7 +15,7 @@ import org.http4s.{Status, _}
 class TradeOgreClient[F[_]: Sync](httpClient: Client[F], config: TradeOgreClientConfig)
     extends ExchangeClient[F]
     with StrictLogging {
-  
+
   def fetchAllMarkets(): F[Map[Market, MarketInfoResponse]] =
     for {
       uri <- Uri.fromString(s"${config.endpoint}/markets").liftTo[F]

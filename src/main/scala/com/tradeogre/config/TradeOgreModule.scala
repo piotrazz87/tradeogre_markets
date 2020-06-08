@@ -1,28 +1,26 @@
 package com.tradeogre.config
 
-import cats.effect.{ConcurrentEffect, ContextShift, Resource}
+import cats.effect.{ConcurrentEffect, ContextShift, IO, Resource, Sync}
 import com.tradeogre.client.TradeOgreClient
 import com.tradeogre.dsl.TradeOgreRepository
 import com.tradeogre.service.TradeOgreService
 import com.typesafe.scalalogging.LazyLogging
-import doobie.util.transactor.Transactor
+import doobie.util.transactor.Transactor.Aux
 import pureconfig.ConfigSource
-import pureconfig.generic.auto._
 
 class TradeOgreModule[F[+ _]: ConcurrentEffect: ContextShift] extends LazyLogging {
-
+  import pureconfig.generic.auto._
   logger.info("Loading tradeogre client config")
-  private val clientConfig = ConfigSource.default.at("client").loadOrThrow[TradeOgreClientConfig]
+  val clientConfig: TradeOgreClientConfig = ConfigSource.default.at("client").loadOrThrow[TradeOgreClientConfig]
 
   logger.info("Loading database config")
-  private val dbConfig = ConfigSource.default.at("database").loadOrThrow[DatabaseConfig]
-  private val transactor =
-    Transactor.fromDriverManager[F](dbConfig.driver, dbConfig.url, dbConfig.user, dbConfig.password)
+  val dbConfig: DatabaseConfig = ConfigSource.default.at("database").loadOrThrow[DatabaseConfig]
+  val transactor: Aux[F, Unit] = DatabaseConfig.dbTransactor(dbConfig)
 
   logger.info("Creating components")
-  lazy val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)
-  lazy val repository: TradeOgreRepository[F] = TradeOgreRepository[F](transactor)
-  lazy val service: TradeOgreService[F] = TradeOgreService[F](client, repository)
+  val client: Resource[F, TradeOgreClient[F]] = TradeOgreClient[F](clientConfig)
+  val repository: TradeOgreRepository[F] = TradeOgreRepository[F](transactor)
+  val service: TradeOgreService[F] = TradeOgreService[F](client, repository)
 }
 
 object TradeOgreModule {
