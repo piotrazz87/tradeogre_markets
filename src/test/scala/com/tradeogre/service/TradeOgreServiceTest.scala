@@ -2,11 +2,13 @@ package com.tradeogre.service
 
 import cats.effect.{IO, Resource}
 import com.tradeogre.client.response.{MarketInfoResponse, OrderBookResponse}
-import com.tradeogre.client.{ClientAddressNotFound, Market, ExchangeClient}
+import com.tradeogre.client.{ClientAddressNotFound, ExchangeClient, Market}
 import com.tradeogre.{domain, UnitSpec}
 import com.tradeogre.domain.{MarketInfoIn24Hours, MarketPair}
-import com.tradeogre.dsl.{DBError, Repository, DBSyntaxError}
+import com.tradeogre.dsl.{DBError, DBSyntaxError, Repository}
 import com.tradeogre.service.TradeOgreServiceTest.{client, failingClient, failingRepository, repository}
+import cats.syntax.either
+import cats.implicits._
 
 class TradeOgreServiceTest extends UnitSpec {
 
@@ -44,7 +46,7 @@ class TradeOgreServiceTest extends UnitSpec {
 
     When("persisting markets")
     Then("no error should be raised")
-    service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual Right(List(Right(), Right()))
+    service.persistMarkets(marketsToPersist).attempt.unsafeRunSync() shouldEqual (List(().asRight, ().asRight)).asRight
   }
 
   it should "fail while persisting markets" in {
@@ -88,10 +90,8 @@ private object TradeOgreServiceTest {
     override def getOrderBook(market: Market): IO[OrderBookResponse] =
       IO.pure(OrderBookResponse(Map.empty, Map.empty, success = true))
   }
-  private val repository: Repository[IO] = new Repository[IO] {
-    override def save(market: domain.MarketPair, info: MarketInfoIn24Hours): IO[Either[DBError, Unit]] =
-      IO.pure(Right(()))
-  }
+  
+  private val repository: Repository[IO] = (market: domain.MarketPair, info: MarketInfoIn24Hours) => IO.pure(Right(()))
 
   private val failingRepository: Repository[IO] = (_: domain.MarketPair, _: MarketInfoIn24Hours) =>
     IO.pure(Left(DBSyntaxError("4281")))

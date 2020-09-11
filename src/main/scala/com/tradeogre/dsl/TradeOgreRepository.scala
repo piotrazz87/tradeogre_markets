@@ -11,12 +11,13 @@ class TradeOgreRepository[F[+ _]: Sync](transactor: Transactor[F]) extends Repos
 
   def save(market: MarketPair, info: MarketInfoIn24Hours): F[Either[DBError, Unit]] = {
     logger.info(s"Trying to insert market info for market pair: $market")
-
+  
     val query =
       sql"INSERT INTO market (base_currency,target_currency, created_date,current_price,volume,start_price,low,high,buy_offer,sell_offer) " ++
         sql"VALUES (${market.from}, ${market.to}, current_timestamp, ${info.currentPrice}, ${info.volume}, ${info.startingPrice}, ${info.low},${info.high},${info.buyOffer},${info.sellOffer})"
-
-    query.update
+   
+      query
+      .update
       .withUniqueGeneratedKeys("id")
       .attemptSomeSqlState {
         case exception: SqlState =>
